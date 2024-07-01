@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .search-container {
+            margin: 20px;
+            text-align: center;
+        }
+        .search-input {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .search-button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .images-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .image-item {
+            margin: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .image-item img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .image-item:hover {
+            transform: scale(1.05);
+        }
+        .loading-text {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .clear-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .clear-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="search-container">
+        <input type="text" id="search-query" class="search-input" placeholder="Search for images">
+        <button onclick="searchImages()" class="search-button">Search</button>
+        <button onclick="clearImages()" class="clear-button">Clear Images</button>
+        <p id="loading-text" class="loading-text" style="display: none;">Loading...</p>
+    </div>
+
+    <div id="images-container" class="images-container"></div>
+
+    <script>
+        async function searchImages() {
+            const query = document.getElementById('search-query').value;
+            const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+            const imagesContainer = document.getElementById('images-container');
+            const loadingText = document.getElementById('loading-text');
+
+            loadingText.style.display = 'block';
+            imagesContainer.innerHTML = '';
+
+            try {
+                const images = await response.json();
+
+                images.forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    const div = document.createElement('div');
+                    div.className = 'image-item';
+                    div.appendChild(img);
+                    imagesContainer.appendChild(div);
+                });
+
+                loadingText.style.display = 'none';
+            } catch (error) {
+                loadingText.innerText = 'Failed to retrieve images';
+                console.error('Error fetching images:', error);
+            }
+        }
+
+        function clearImages() {
+            const imagesContainer = document.getElementById('images-container');
+            imagesContainer.innerHTML = '';
+        }
+    </script>
+
+</body>
+</html>
